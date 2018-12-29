@@ -3,7 +3,7 @@ public:
     void makeMove(int Record[5][6], int Max[5][6], Color color[5][6], Color inputColor)
     {
         x = 0; y = 0; myCM_x = 0; myCM_y = 0; enemyCM_x = 0; enemyCM_y = 0; corner_x = 0; corner_y = 0; near_x = 0; near_y = 0; empty_x = 0;
-        empty_y = 0; myCell_x = 0; myCell_y = 0; kill_x = 0; kill_y = 0;
+        empty_y = 0; myCell_x = 0; myCell_y = 0; kill_x = 0; kill_y = 0; diagonal = false;
 
         if(inputColor == Red) enemyColor = Blue;
         else enemyColor = Red;
@@ -16,7 +16,7 @@ public:
             }
             else if(myCM(Record, Max, color, inputColor))
             {
-                if(enemy_near_myCM(Record, Max, color, inputColor))
+                if(enemy_near_myCM(Record, Max, color, inputColor) && !diagonal)
                 {
                     x = kill_x;
                     y = kill_y;
@@ -26,11 +26,11 @@ public:
                     x = myCell_x;
                     y = myCell_y;
                 }
-                /*else if(myCM_near(Record, Max, color, inputColor))
+                else if(myCell(Record, Max, color, inputColor))
                 {
-                    x = near_x;
-                    y = near_y;
-                }*/
+                    x = myCell_x;
+                    y = myCell_y;
+                }
                 else
                 {
                     x = myCM_x;
@@ -47,7 +47,12 @@ public:
                 }
                 else
                 {
-                    if(myCell(Record, Max, color, inputColor))
+                    if(enemy_near_myCell(Record, Max, color, inputColor))
+                    {
+                        x = myCell_x;
+                        y = myCell_y;
+                    }
+                    else if(myCell(Record, Max, color, inputColor))
                     {
                         x = myCell_x;
                         y = myCell_y;
@@ -63,7 +68,7 @@ public:
         }
         else if(myCM(Record, Max, color, inputColor))
         {
-            if(enemy_near_myCM(Record, Max, color, inputColor))
+            if(enemy_near_myCM(Record, Max, color, inputColor) && !diagonal)
             {
                 x = kill_x;
                 y = kill_y;
@@ -73,11 +78,11 @@ public:
                 x = myCell_x;
                 y = myCell_y;
             }
-            /*else if(myCM_near(Record, Max, color, inputColor))
+            else if(myCell(Record, Max, color, inputColor))
             {
-                x = near_x;
-                y = near_y;
-            }*/
+                x = myCell_x;
+                y = myCell_y;
+            }
             else
             {
                 x = myCM_x;
@@ -145,6 +150,17 @@ public:
                            myCM_x + dir_r_[k] >= 0 && myCM_y + dir_c_[k] >= 0 &&
                            myCM_x + dir_r_[k] < 5 && myCM_y + dir_c_[k] < 6)
                         {
+                            for(int m = 0; m < 4; m++)
+                            {
+                                if(color[myCM_x + dir_rd_[m]][myCM_y + dir_cd_[m]] == enemyColor &&
+                                   myCM_x + dir_rd_[m] >= 0 && myCM_y + dir_cd_[m] >= 0 &&
+                                   myCM_x + dir_rd_[m] < 5 && myCM_y + dir_cd_[m] < 6 &&
+                                   Max[myCM_x + dir_rd_[m]][myCM_y + dir_cd_[m]] - Record[myCM_x + dir_rd_[m]][myCM_y + dir_cd_[m]] == 1)
+                                {
+                                    diagonal = true;
+                                    break;
+                                }
+                            }
                             kill_x = myCM_x;
                             kill_y = myCM_y;
                             return true;
@@ -195,7 +211,8 @@ public:
                         if(color[i + dir_r_[k]][j + dir_c_[k]] == enemyColor &&
                            0 <= i + dir_r_[k] && i + dir_r_[k] < 5 &&
                            0 <= j + dir_c_[k] && j + dir_c_[k] < 6 &&
-                           Max[i][j] - Record[i][j] <= Max[i + dir_r_[k]][j + dir_c_[k]] - Record[i + dir_r_[k]][j + dir_c_[k]])
+                           Max[i][j] - Record[i][j] <= Max[i + dir_r_[k]][j + dir_c_[k]] - Record[i + dir_r_[k]][j + dir_c_[k]] &&
+                           Max[i][j] - Record[i][j] > 1)
                         {
                             myCell_x = i;
                             myCell_y = j;
@@ -276,7 +293,7 @@ public:
         {
             for(int j = 0; j < 6; ++j)
             {
-                if(color[i][j] == inputColor)
+                if(color[i][j] == inputColor && Max[i][j] - Record[i][j] > 1)
                 {
                     myCell_x = i;
                     myCell_y = j;
@@ -309,10 +326,13 @@ private:
     int myCell_y;
     int kill_x;
     int kill_y;
+    bool diagonal;
     Color enemyColor;
     //bool last;
     //int last_x;
     //int last_y;
     const int dir_r_[4] = {1, -1, 0, 0};
     const int dir_c_[4] = {0, 0, 1, -1};
+    const int dir_rd_[4] = {1, -1, 1, -1};
+    const int dir_cd_[4] = {1, 1, -1, -1};
 };
