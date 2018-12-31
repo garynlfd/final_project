@@ -3,7 +3,7 @@ public:
     void makeMove(int Record[5][6], int Max[5][6], Color color[5][6], Color inputColor)
     {
         x = 0; y = 0; myCM_x = 0; myCM_y = 0; enemyCM_x = 0; enemyCM_y = 0; corner_x = 0; corner_y = 0; near_x = 0; near_y = 0; empty_x = 0;
-        empty_y = 0; myCell_x = 0; myCell_y = 0; kill_x = 0; kill_y = 0; diagonal = false;
+        empty_y = 0; myCell_x = 0; myCell_y = 0; kill_x = 0; kill_y = 0; diagonal = false; danger = false; enemy_x = 0; enemy_y = 0;
 
         if(inputColor == Red) enemyColor = Blue;
         else enemyColor = Red;
@@ -16,7 +16,7 @@ public:
             }
             else if(myCM(Record, Max, color, inputColor))
             {
-                if(enemy_near_myCM(Record, Max, color, inputColor) && !diagonal)
+                if(enemy_near_myCM(Record, Max, color, inputColor) && !diagonal && !danger)
                 {
                     x = kill_x;
                     y = kill_y;
@@ -68,7 +68,7 @@ public:
         }
         else if(myCM(Record, Max, color, inputColor))
         {
-            if(enemy_near_myCM(Record, Max, color, inputColor) && !diagonal)
+            if(enemy_near_myCM(Record, Max, color, inputColor) && !diagonal && !danger)
             {
                 x = kill_x;
                 y = kill_y;
@@ -148,9 +148,12 @@ public:
                     {
                         if(color[myCM_x + dir_r_[k]][myCM_y + dir_c_[k]] == enemyColor &&
                            myCM_x + dir_r_[k] >= 0 && myCM_y + dir_c_[k] >= 0 &&
-                           myCM_x + dir_r_[k] < 5 && myCM_y + dir_c_[k] < 6)
+                           myCM_x + dir_r_[k] < 5 && myCM_y + dir_c_[k] < 6 &&
+                           Max[myCM_x + dir_r_[k]][myCM_y + dir_c_[k]] - Record[myCM_x + dir_r_[k]][myCM_y + dir_c_[k]] > 1)
                         {
-                            for(int m = 0; m < 4; m++)
+                            enemy_x = myCM_x + dir_r_[k];
+                            enemy_y = myCM_y + dir_c_[k];
+                            for(int m = 0; m < 4; ++m)
                             {
                                 if(color[myCM_x + dir_rd_[m]][myCM_y + dir_cd_[m]] == enemyColor &&
                                    myCM_x + dir_rd_[m] >= 0 && myCM_y + dir_cd_[m] >= 0 &&
@@ -158,6 +161,15 @@ public:
                                    Max[myCM_x + dir_rd_[m]][myCM_y + dir_cd_[m]] - Record[myCM_x + dir_rd_[m]][myCM_y + dir_cd_[m]] == 1)
                                 {
                                     diagonal = true;
+                                    break;
+                                }
+                            }
+                            for(int m = 0; m < 4; ++m)
+                            {
+                                if(color[enemy_x + dir_r_[m]][enemy_y + dir_c_[m]] == enemyColor &&
+                                   Max[enemy_x + dir_r_[m]][enemy_y + dir_c_[m]] == Record[enemy_x + dir_r_[i]][enemy_y + dir_c_[m]] - 1)
+                                {
+                                    danger = true;
                                     break;
                                 }
                             }
@@ -327,6 +339,9 @@ private:
     int kill_x;
     int kill_y;
     bool diagonal;
+    bool danger;
+    int enemy_x;
+    int enemy_y;
     Color enemyColor;
     //bool last;
     //int last_x;
