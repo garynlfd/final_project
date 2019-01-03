@@ -331,6 +331,16 @@ public:
             {
                 if(color[i][j] == inputColor && Max[i][j] - Record[i][j] > 1)
                 {
+                    for(int k = 0; k < 4; ++k)
+                    {
+                        if(color[i + dir_r_[k]][j + dir_c_[k]] == enemyColor &&
+                           0 <= i + dir_r_[k] && i + dir_r_[k] < 5 &&
+                           0 <= j + dir_c_[k] && j + dir_c_[k] < 6 &&
+                           Max[i + dir_r_[k]][j + dir_c_[k]] - Record[i + dir_r_[k]][j + dir_c_[k]] == 1)
+                        {
+                            return false;
+                        }
+                    }
                     myCell_x = i;
                     myCell_y = j;
                     return true;
